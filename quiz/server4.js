@@ -5,9 +5,6 @@ const app = express();
 var cors = require('cors');
 const port = 8000;
 
-const readUsers = require('./readUsers');
-const writeUsers = require('./writeUsers');
-
 let users;
 fs.readFile(path.resolve(__dirname, '../data/users.json'), function(err, data) {
   console.log('reading file ... ');
@@ -33,10 +30,16 @@ app.use(
 );
 app.use(addMsgToRequest);
 
-app.use('/read', readUsers);
+const readRouter = express.Router();
+readRouter.use('/', require('./readUsers'));
+app.use('/read', readRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/write', writeUsers);
+
+const writeRouter = express.Router();
+writeRouter.use('/', require('./writeUsers'));
+app.use('/write', writeRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
